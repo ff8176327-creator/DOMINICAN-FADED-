@@ -1,1 +1,575 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOMINICAN FADED | Barbería</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0f1115;color:#f5f5f5}
+header{padding:18px 20px;background:#151922;border-bottom:1px solid #2a2f3a;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:22px}.sub{color:#9da5b4;font-size:13px;margin-top:4px}
+nav{display:flex;gap:8px;overflow:auto;padding:12px;background:#11141b;position:sticky;top:72px;z-index:4}
+nav button,.btn{border:1px solid #303746;background:#1b202b;color:#fff;border-radius:10px;padding:10px 14px;font-weight:600}
+nav button.active,.btn.primary{background:#fff;color:#111}
+main{max-width:1050px;margin:auto;padding:18px}
+section{display:none}.active-section{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.card{background:#171b23;border:1px solid #292f3b;border-radius:14px;padding:16px}
+.num{font-size:28px;font-weight:800;margin-top:6px}.muted{color:#9da5b4}
+form{display:grid;gap:10px;max-width:600px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input,select{width:100%;padding:12px;border-radius:9px;border:1px solid #353b48;background:#0f1218;color:#fff}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+.table-wrap{overflow:auto}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #2a2f38;white-space:nowrap}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#252c38;color:#cdd3de;font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.empty{padding:24px;text-align:center;color:#8f97a6}
+.total{font-size:20px;font-weight:800}
+@media(max-width:600px){.row{grid-template-columns:1fr}main{padding:12px}nav{top:69px}}
+</style>
+</head>
 
+<body>
+
+<header>
+<h1>✂️ DOMINICAN FADED</h1>
+<div class="sub">Sistema de gestión para barbería</div>
+</header>
+
+<nav>
+<button class="active" onclick="show('inicio',this)">Inicio</button>
+<button onclick="show('clientes',this)">Clientes</button>
+<button onclick="show('citas',this)">Citas</button>
+<button onclick="show('ventas',this)">Ventas</button>
+<button onclick="show('servicios',this)">Servicios</button>
+</nav>
+
+<main>
+
+<section id="inicio" class="active-section">
+<h2>Panel principal</h2>
+
+<div class="grid">
+
+<div class="card">
+<div class="muted">Clientes</div>
+<div class="num" id="kClientes">0</div>
+</div>
+
+<div class="card">
+<div class="muted">Citas</div>
+<div class="num" id="kCitas">0</div>
+</div>
+
+<div class="card">
+<div class="muted">Ventas</div>
+<div class="num" id="kVentas">0</div>
+</div>
+
+<div class="card">
+<div class="muted">Ingresos</div>
+<div class="num" id="kIngresos">RD$0</div>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:12px">
+<h3>Acciones rápidas</h3>
+
+<div class="actions">
+<button class="btn primary" onclick="showById('clientes')">+ Nuevo cliente</button>
+<button class="btn" onclick="showById('citas')">+ Nueva cita</button>
+<button class="btn" onclick="showById('ventas')">+ Registrar venta</button>
+</div>
+
+</div>
+</section>
+
+<section id="clientes">
+
+<h2>Clientes</h2>
+
+<div class="card">
+
+<form id="clienteForm">
+
+<div class="row">
+<input id="cnombre" placeholder="Nombre" required>
+<input id="ctel" placeholder="Teléfono">
+</div>
+
+<button class="btn primary">Guardar cliente</button>
+
+</form>
+
+</div>
+
+<div class="card" style="margin-top:12px">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Teléfono</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="clientesTabla"></tbody>
+
+</table>
+
+</div>
+</div>
+
+</section>
+
+<section id="citas">
+
+<h2>Citas</h2>
+
+<div class="card">
+
+<form id="citaForm">
+
+<input id="anombre" placeholder="Cliente" required>
+
+<div class="row">
+<input id="afecha" type="date" required>
+<input id="ahora" type="time" required>
+</div>
+
+<select id="aservicio"></select>
+
+<button class="btn primary">Guardar cita</button>
+
+</form>
+
+</div>
+
+<div class="card" style="margin-top:12px">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Cliente</th>
+<th>Fecha</th>
+<th>Hora</th>
+<th>Servicio</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="citasTabla"></tbody>
+
+</table>
+
+</div>
+</div>
+
+</section>
+
+<section id="ventas">
+
+<h2>Ventas</h2>
+
+<div class="card">
+
+<form id="ventaForm">
+
+<input id="vcliente" placeholder="Cliente (opcional)">
+
+<div class="row">
+
+<select id="vservicio"></select>
+
+<input id="vmonto"
+type="number"
+min="0"
+step="1"
+placeholder="Monto RD$"
+required>
+
+</div>
+
+<button class="btn primary">Registrar venta</button>
+
+</form>
+
+</div>
+
+<div class="card" style="margin-top:12px">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Cliente</th>
+<th>Concepto</th>
+<th>Monto</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="ventasTabla"></tbody>
+
+</table>
+
+</div>
+</div>
+
+</section>
+
+<section id="servicios">
+
+<h2>Servicios</h2>
+
+<div class="card">
+
+<form id="servicioForm">
+
+<div class="row">
+
+<input id="snombre"
+placeholder="Nombre del servicio"
+required>
+
+<input id="sprecio"
+type="number"
+min="0"
+placeholder="Precio RD$"
+required>
+
+</div>
+
+<button class="btn primary">Agregar servicio</button>
+
+</form>
+
+</div>
+
+<div class="card" style="margin-top:12px">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Servicio</th>
+<th>Precio</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="serviciosTabla"></tbody>
+
+</table>
+
+</div>
+</div>
+
+</section>
+
+</main>
+
+<script>
+
+const key='df_barberia_v1';
+
+let db=JSON.parse(localStorage.getItem(key)||'null')||{
+
+clientes:[],
+citas:[],
+ventas:[],
+
+servicios:[
+{nombre:'Corte',precio:500},
+{nombre:'Corte + barba',precio:800},
+{nombre:'Barba',precio:400}
+]
+
+};
+
+function save(){
+localStorage.setItem(key,JSON.stringify(db));
+render();
+}
+
+function money(n){
+return 'RD$'+Number(n||0).toLocaleString('es-DO');
+}
+
+function show(id,btn){
+
+document.querySelectorAll('section')
+.forEach(s=>s.classList.remove('active-section'));
+
+document.getElementById(id)
+.classList.add('active-section');
+
+document.querySelectorAll('nav button')
+.forEach(b=>b.classList.remove('active'));
+
+if(btn)btn.classList.add('active');
+
+render();
+
+}
+
+function showById(id){
+
+let b=[...document.querySelectorAll('nav button')]
+.find(x=>x.getAttribute('onclick')?.includes("'"+id+"'"));
+
+show(id,b);
+
+}
+
+function fillServices(){
+
+let opts=db.servicios.map((s,i)=>
+`<option value="${i}">
+${s.nombre} — ${money(s.precio)}
+</option>`
+).join('');
+
+document.getElementById('aservicio').innerHTML=opts;
+
+document.getElementById('vservicio').innerHTML=opts;
+
+}
+
+function render(){
+
+fillServices();
+
+document.getElementById('kClientes').textContent=
+db.clientes.length;
+
+document.getElementById('kCitas').textContent=
+db.citas.length;
+
+document.getElementById('kVentas').textContent=
+db.ventas.length;
+
+document.getElementById('kIngresos').textContent=
+money(db.ventas.reduce((a,v)=>a+Number(v.monto),0));
+
+document.getElementById('clientesTabla').innerHTML=
+db.clientes.length?
+
+db.clientes.map((c,i)=>
+`<tr>
+<td>${esc(c.nombre)}</td>
+<td>${esc(c.tel)}</td>
+<td>
+<button class="btn"
+onclick="del('clientes',${i})">
+Eliminar
+</button>
+</td>
+</tr>`
+).join('')
+
+:
+
+`<tr>
+<td colspan="3" class="empty">
+No hay clientes.
+</td>
+</tr>`;
+
+document.getElementById('citasTabla').innerHTML=
+db.citas.length?
+
+db.citas.map((c,i)=>
+`<tr>
+<td>${esc(c.nombre)}</td>
+<td>${c.fecha}</td>
+<td>${c.hora}</td>
+<td>${esc(c.servicio)}</td>
+<td>
+<button class="btn"
+onclick="del('citas',${i})">
+Eliminar
+</button>
+</td>
+</tr>`
+).join('')
+
+:
+
+`<tr>
+<td colspan="5" class="empty">
+No hay citas.
+</td>
+</tr>`;
+
+document.getElementById('ventasTabla').innerHTML=
+db.ventas.length?
+
+db.ventas.slice().reverse().map((v,ri)=>{
+
+let i=db.ventas.length-1-ri;
+
+return `<tr>
+<td>${v.fecha}</td>
+<td>${esc(v.cliente||'-')}</td>
+<td>${esc(v.concepto)}</td>
+<td class="total">${money(v.monto)}</td>
+<td>
+<button class="btn"
+onclick="del('ventas',${i})">
+Eliminar
+</button>
+</td>
+</tr>`
+
+}).join('')
+
+:
+
+`<tr>
+<td colspan="5" class="empty">
+No hay ventas.
+</td>
+</tr>`;
+
+document.getElementById('serviciosTabla').innerHTML=
+
+db.servicios.map((s,i)=>
+`<tr>
+<td>${esc(s.nombre)}</td>
+<td>${money(s.precio)}</td>
+<td>
+<button class="btn"
+onclick="del('servicios',${i})">
+Eliminar
+</button>
+</td>
+</tr>`
+).join('');
+
+}
+
+function esc(x){
+
+return String(x??'')
+.replace(/[&<>"']/g,m=>({
+
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+
+}[m]));
+
+}
+
+function del(type,i){
+
+if(confirm('¿Eliminar este registro?')){
+
+db[type].splice(i,1);
+
+save();
+
+}
+
+}
+
+document.getElementById('clienteForm').onsubmit=e=>{
+
+e.preventDefault();
+
+db.clientes.push({
+
+nombre:cnombre.value.trim(),
+tel:ctel.value.trim()
+
+});
+
+e.target.reset();
+
+save();
+
+};
+
+document.getElementById('citaForm').onsubmit=e=>{
+
+e.preventDefault();
+
+let s=db.servicios[aservicio.value];
+
+db.citas.push({
+
+nombre:anombre.value.trim(),
+fecha:afecha.value,
+hora:ahora.value,
+servicio:s?.nombre||''
+
+});
+
+e.target.reset();
+
+save();
+
+};
+
+document.getElementById('ventaForm').onsubmit=e=>{
+
+e.preventDefault();
+
+let s=db.servicios[vservicio.value];
+
+db.ventas.push({
+
+fecha:new Date().toLocaleDateString('es-DO'),
+cliente:vcliente.value.trim(),
+concepto:s?.nombre||'Venta',
+monto:Number(vmonto.value)
+
+});
+
+e.target.reset();
+
+save();
+
+};
+
+document.getElementById('servicioForm').onsubmit=e=>{
+
+e.preventDefault();
+
+db.servicios.push({
+
+nombre:snombre.value.trim(),
+precio:Number(sprecio.value)
+
+});
+
+e.target.reset();
+
+save();
+
+};
+
+render();
+
+</script>
+
+</body>
+  </html>
